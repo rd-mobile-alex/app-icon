@@ -11,55 +11,40 @@ const generateIconSetIcons = generateFunctions.generateIconSetIcons;
 const generate = generateFunctions.generate;
 
 describe('Find Icon Sets', () => {
+  it('should not find any iconsets in the node_modules/ folder', () => findIconSets('./').then((iconSets) => {
+    iconSets.forEach(is => expect(is).not.to.match(/node_modules/));
+  }));
 
-  it('should not find any iconsets in the node_modules/ folder', () => {
-    return findIconSets('./').then(iconSets => {
-      iconSets.forEach(is => expect(is).not.to.match(/node_modules/));
-    });
-  });
+  it('should be able to find the iOS iconsets', () => findIconSets('./').then((iconSets) => {
+    expect(iconSets).to.include('test/ReactNativeIconTest/ios/ReactNativeIconTest/Images.xcassets/AppIcon.appiconset');
+  }));
 
-  it('should be able to find the iOS iconsets', () => {
-    return findIconSets('./').then(iconSets => {
-      expect(iconSets).to.include('test/ReactNativeIconTest/ios/ReactNativeIconTest/Images.xcassets/AppIcon.appiconset');
-    });
-  });
-  
-  it('should be able to find the iOS iconsets with a deep search path', () => {
-    return findIconSets('./test/ReactNativeIconTest/ios/ReactNativeIconTest/Images.xcassets').then(iconSets => {
-      expect(iconSets).to.include('test/ReactNativeIconTest/ios/ReactNativeIconTest/Images.xcassets/AppIcon.appiconset');
-    });
-  });
+  it('should be able to find the iOS iconsets with a deep search path', () => findIconSets('./test/ReactNativeIconTest/ios/ReactNativeIconTest/Images.xcassets').then((iconSets) => {
+    expect(iconSets).to.include('test/ReactNativeIconTest/ios/ReactNativeIconTest/Images.xcassets/AppIcon.appiconset');
+  }));
 
-  it('should be able to find the Android Manifest', () => {
-    return findAndroidManifests('./').then(manifests => {
-      expect(manifests).to.include('test/ReactNativeIconTest/android/app/src/main/AndroidManifest.xml');
-    });
-  });
+  it('should be able to find the Android Manifest', () => findAndroidManifests('./').then((manifests) => {
+    expect(manifests).to.include('test/ReactNativeIconTest/android/app/src/main/AndroidManifest.xml');
+  }));
 
-  it('should be able to find the Android Manifest with a deep search path', () => {
-    return findAndroidManifests('./test/ReactNativeIconTest/android/app/src/main').then(manifests => {
-      expect(manifests).to.include('test/ReactNativeIconTest/android/app/src/main/AndroidManifest.xml');
-    });
-  });
+  it('should be able to find the Android Manifest with a deep search path', () => findAndroidManifests('./test/ReactNativeIconTest/android/app/src/main').then((manifests) => {
+    expect(manifests).to.include('test/ReactNativeIconTest/android/app/src/main/AndroidManifest.xml');
+  }));
 });
 
 describe('Generate iconset icons', () => {
-  it('should be able to generate icons for the test icon set', () => {
-    return generateIconSetIcons('test/ReactNativeIconTest/ios/ReactNativeIconTest/Images.xcassets/AppIcon.appiconset');
-  });
+  it('should be able to generate icons for the test icon set', () => generateIconSetIcons('test/ReactNativeIconTest/ios/ReactNativeIconTest/Images.xcassets/AppIcon.appiconset'));
 });
 
 describe('Generate manifest icons', () => {
-  it('should be able to generate icons for the test manifest', () => {
-    return generateManifestIcons('test/ReactNativeIconTest/android/app/src/main/AndroidManifest.xml');
-  });
+  it('should be able to generate icons for the test manifest', () => generateManifestIcons('test/ReactNativeIconTest/android/app/src/main/AndroidManifest.xml'));
 });
 
 function fileExists(path) {
   return new Promise((resolve, reject) => {
     fs.stat(path, (err) => {
-      if(err === null) return resolve(true);
-      if(err && err.code === 'ENOENT') return resolve(false);
+      if (err === null) return resolve(true);
+      if (err && err.code === 'ENOENT') return resolve(false);
       reject(err);
     });
   });
@@ -90,30 +75,19 @@ const files = [
 ];
 
 describe('Generate', () => {
-
   it('should generate icons for all of the test projects', () => {
-
     //  Delete all of the files we're expecting to create...
     files.forEach(fs.unlinkSync);
 
     //  Generate the icons, then check each expected file exists.
-    return generate('./').then((results) => {
-      return Promise.all(files.map(file => {
-        return fileExists(file).then(exists => expect(exists, `${file} should be generated`).to.equal(true)); 
-      }));
-    });
+    return generate('./').then(() => Promise.all(files.map(file => fileExists(file).then(exists => expect(exists, `${file} should be generated`).to.equal(true)))));
   });
 
   it('should generate icons for the android project only with a search path', () => {
-
     //  Delete all of the files we're expecting to create...
     files.forEach(fs.unlinkSync);
 
     //  Generate the icons, then check each expected file exists.
-    return generate('./test/ReactNativeIconTest/android/app/src/main').then((results) => {
-      return Promise.all(files.filter(f => f.match(/android/)).map(file => {
-        return fileExists(file).then(exists => expect(exists, `${file} should be generated`).to.equal(true)); 
-      }));
-    });
+    return generate('./test/ReactNativeIconTest/android/app/src/main').then(() => Promise.all(files.filter(f => f.match(/android/)).map(file => fileExists(file).then(exists => expect(exists, `${file} should be generated`).to.equal(true)))));
   });
 });

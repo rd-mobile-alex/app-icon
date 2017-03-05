@@ -13,18 +13,20 @@ const path = require('path');
 function walk(dir, existingResults, predicate, done) {
   const results = existingResults || [];
   fs.readdir(dir, (err, list) => {
-    var pending = list.length;
+    let pending = list.length;
     if (err || pending === 0) return done(err, results);
-    list.forEach((file) => {
-      file = path.resolve(dir, file);
-      fs.stat(file, (err, stat) => {
-        if (predicate(file, stat)) results.push(file); 
+    return list.forEach((file) => {
+      const resolvedPath = path.resolve(dir, file);
+      return fs.stat(resolvedPath, (_, stat) => {
+        if (predicate(file, stat)) results.push(file);
         if (stat && stat.isDirectory()) {
-          walk(file, results, predicate, (err, res) => {
-            if (!--pending) done(null, results);
+          walk(file, results, predicate, () => {
+            pending -= 1;
+            if (pending === 0) done(null, results);
           });
         } else {
-          if (!--pending) done(null, results);
+          pending -= 1;
+          if (!pending) done(null, results);
         }
       });
     });
@@ -34,7 +36,7 @@ function walk(dir, existingResults, predicate, done) {
 module.exports = function find(root, predicate) {
   return new Promise((resolve, reject) => {
     walk(root, [], predicate, (err, files) => {
-      if(err) return reject(err);
+      if (err) return reject(err);
       return resolve(files.map(f => path.relative('', f)));
     });
   });

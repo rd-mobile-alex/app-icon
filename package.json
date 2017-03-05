@@ -7,7 +7,7 @@
     "react-native-icon": "react-native-icon.js"
   },
   "scripts": {
-    "test": "istanbul cover --dir './artifacts/coverage' -x '*.specs.js' _mocha *.specs.js",
+    "test": "istanbul cover --dir './artifacts/coverage' -x '*.specs.js' _mocha ./src/*.specs.js",
     "dev": "mocha -d --debug-brk -w *.specs.js"
   },
   "repository": {
@@ -28,8 +28,11 @@
   "homepage": "https://github.com/dwmkerr/react-native-icon#readme",
   "devDependencies": {
     "chai": "^3.5.0",
-    "mocha": "^3.0.2",
+    "eslint": "^3.16.1",
+    "eslint-config-airbnb-base": "^11.1.0",
+    "eslint-plugin-import": "^2.2.0",
     "istanbul": "^0.4.5",
+    "mocha": "^3.0.2",
     "node-inspector": "^0.12.8"
   },
   "dependencies": {
